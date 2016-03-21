@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * Implements hook_permission().
+ */
+function hqsms_permission() {
+	return array(
+		'administer hqsms' => array(
+			'title' => t('Administer hqsms'),
+			'description' => t('Allows a user to configure hqsms.'),
+		),
+	);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function hqsms_menu() {
+	$items['admin/config/services/hqsms'] = array(
+		'title' => 'HQ SMS Gate',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('hqsms_settings_form'),
+		'access arguments' => array('administer hqsms'),
+		'type' => MENU_NORMAL_ITEM,
+		'weight' => 10,
+		'file' => 'hqsms.admin.inc',
+	);
+
+	return $items;
+}
+
+
+function hqsms_send($number, $message){
+	$username = variable_get('hqsms_login');
+	$password = md5(variable_get('hqsms_pass'));
+	$number = $number;
+	$message = $message;
+	$url = 'https://ssl.hqsms.com/sms.do?'.'username='.$username.'&password='.$password.'&to='.$number.'&message='.urldecode($message);
+
+	$result = file_get_contents($url);
+
+	return $result;
+}
